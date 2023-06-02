@@ -32,6 +32,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,14 +59,45 @@ class _HomeState extends State<Home> {
                             builder: (BuildContext context) {
                               return SizedBox(
                                 height: 400,
-                                child: Column(children: [
-                                  ElevatedButton(
-                                    child: const Text('Close'),
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                  )
-                                ]),
+                                child: Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Column(children: [
+                                      Form(
+                                          key: _formKey,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Text(
+                                                "Add task",
+                                                style: TextStyle(
+                                                    fontSize: 24,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              TextFormField(
+                                                validator: (value) {
+                                                  if (value == null ||
+                                                      value.isEmpty) {
+                                                    return 'Need some text';
+                                                  }
+                                                  return null;
+                                                },
+                                              ),
+                                              const SizedBox(height: 20),
+                                              ElevatedButton.icon(
+                                                  onPressed: () {},
+                                                  label: const Text('Add task'),
+                                                  icon: const Padding(
+                                                      padding:
+                                                          EdgeInsets.all(15),
+                                                      child: Icon(Icons
+                                                          .add_to_photos_sharp)))
+                                            ],
+                                          ))
+                                    ])),
                               );
                             });
                       },
