@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +34,28 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final _formKey = GlobalKey<FormState>();
+  final textController = TextEditingController();
+  List<String> tasks = [];
+  insertData(context) {
+    if (textController.text != '') {
+      setState(() {
+        tasks.add(textController.text);
+      });
+      textController.text = '';
+      // print(tasks);
+      Navigator.pop(context);
+    } else {
+      Alert(
+              style: const AlertStyle(
+                animationType: AnimationType.grow,
+              ),
+              context: context,
+              title: "No Data in Text field",
+              type: AlertType.error)
+          .show();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,9 +68,21 @@ class _HomeState extends State<Home> {
           child: Padding(
             padding: const EdgeInsets.all(10),
             child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: tasks
+                          .map((task) => TaskUI(
+                              task: task,
+                              delete: () {
+                                setState(() {
+                                  tasks.remove(task);
+                                });
+                              }))
+                          .toList()),
                   FloatingActionButton(
                       onPressed: () {
                         showModalBottomSheet(
@@ -60,7 +95,7 @@ class _HomeState extends State<Home> {
                               return SizedBox(
                                 height: 400,
                                 child: Padding(
-                                    padding: EdgeInsets.all(20),
+                                    padding: const EdgeInsets.all(20),
                                     child: Column(children: [
                                       Form(
                                           key: _formKey,
@@ -79,16 +114,17 @@ class _HomeState extends State<Home> {
                                               ),
                                               TextFormField(
                                                 validator: (value) {
-                                                  if (value == null ||
-                                                      value.isEmpty) {
+                                                  if (value == '') {
                                                     return 'Need some text';
                                                   }
                                                   return null;
                                                 },
+                                                controller: textController,
                                               ),
                                               const SizedBox(height: 20),
                                               ElevatedButton.icon(
-                                                  onPressed: () {},
+                                                  onPressed: () =>
+                                                      insertData(context),
                                                   label: const Text('Add task'),
                                                   icon: const Padding(
                                                       padding:
@@ -104,6 +140,36 @@ class _HomeState extends State<Home> {
                       child: (const Icon(Icons.add_circle_outlined)))
                 ]),
           ),
+        ));
+  }
+}
+
+class TaskUI extends StatefulWidget {
+  const TaskUI({super.key, required this.task, required this.delete});
+  final String task;
+  final Function delete;
+
+  @override
+  State<TaskUI> createState() => _TaskUIState();
+}
+
+class _TaskUIState extends State<TaskUI> {
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        margin: const EdgeInsets.all(5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Text(widget.task,
+                style: const TextStyle(color: Colors.black, fontSize: 24)),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () => widget.delete(),
+              label: const Text("remove"),
+              icon: const Icon(Icons.remove_circle),
+            )
+          ],
         ));
   }
 }
